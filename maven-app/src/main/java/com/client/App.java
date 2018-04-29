@@ -126,4 +126,53 @@ public class App {
     public static void main( String[] args ) {
         new App();
     }
+
+//    private void init() {
+//        try {
+//            this.connection = new Connection(InetAddress.getByName(this.SERVER_IP), this.SERVER_PORT);
+//            this.socket = new DatagramSocket();
+//            this.isWorking = true;
+//        } catch (UnknownHostException e) {
+//            e.printStackTrace();
+//        } catch (SocketException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    @Override
+//    public void run() {
+//        try {
+//            this.sendPacket = new JoinPacket(API_KEY).getPacket(this.connection);
+//            this.receivePacket = new DatagramPacket(this.buffer, this.buffer.length);
+//            this.setGameStatus(GameStatus.IDLE);
+//            this.setConnectionStatus(ConnectionStatus.DISCONNECTED);
+//            while (this.isWorking) {
+//                this.socket.send(this.sendPacket);
+//                this.socket.receive(this.receivePacket);
+//                if (PacketUtility.checkPacketCrc32(this.receivePacket.getData())) {
+//                    switch (PacketUtility.getPacketType(this.receivePacket.getData())) {
+//                        case BasePacket.QUEUE_PACKET:
+//                            this.setConnectionStatus(ConnectionStatus.CONNECTED);
+//                            this.handleAwaitingPacket();
+//                            break;
+//                        case BasePacket.GAME_PACKET:
+//                            this.setConnectionStatus(ConnectionStatus.CONNECTED);
+//                            break;
+//                        case BasePacket.REJECT_PACKET:
+//                            System.out.println("REJECT_PACKET");
+//                            this.setConnectionStatus(ConnectionStatus.AUTHORIZING);
+//                            sendPacket = new JoinPacket(API_KEY).getPacket(this.connection);
+//                            break;
+//                    }
+//                } else {
+//                    System.err.println("Packet corrupted!");
+//                }
+//                Thread.sleep(1000);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        this.socket.close();
 }
