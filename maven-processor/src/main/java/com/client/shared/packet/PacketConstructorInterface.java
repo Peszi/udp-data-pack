@@ -1,4 +1,4 @@
-package com.client.packet;
+package com.client.shared.packet;
 
 public interface PacketConstructorInterface {
     void setPacketPid(int packetPid);

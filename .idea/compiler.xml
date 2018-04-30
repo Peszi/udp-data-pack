@@ -9,6 +9,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="maven-app" />
         <module name="mavenapp" />
       </profile>
       <profile name="Annotation profile for UdpMavenClientTest">
@@ -17,6 +18,13 @@
         <outputRelativeToContentRoot value="true" />
         <option name="debug" value="true" />
         <module name="mavenprocessor" />
+      </profile>
+      <profile name="Annotation profile for maven-processor">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <option name="debug" value="true" />
+        <module name="maven-processor" />
       </profile>
     </annotationProcessing>
   </component>

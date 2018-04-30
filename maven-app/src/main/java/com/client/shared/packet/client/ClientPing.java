@@ -1,5 +1,6 @@
-package com.client.packet;
+package com.client.shared.packet.client;
 
+import com.client.shared.packet.PacketSkeleton;
 import com.client.types.Packet;
 import com.client.types.PacketData;
 
@@ -7,6 +8,9 @@ import com.client.types.PacketData;
 public abstract class ClientPing extends PacketSkeleton {
 
     private static final int MESSAGE_LENGTH = 24;
+
+    @PacketData(stringLength = MESSAGE_LENGTH)
+    protected String ping;
 
     @PacketData
     protected byte value1;
@@ -20,13 +24,13 @@ public abstract class ClientPing extends PacketSkeleton {
     @PacketData
     protected long value4;
 
-    @PacketData(stringLength = MESSAGE_LENGTH)
-    protected String pingMessage;
-
     @PacketData
     protected float value6;
 
     @PacketData
     protected double value7;
+
+    @PacketData
+    protected double value8;
 
 }

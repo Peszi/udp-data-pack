@@ -1,18 +1,16 @@
-package com.client.packet;
+package com.client.shared.packet;
 
 import com.client.types.PacketData;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class BasePacket<T extends PacketSkeleton> implements PacketConstructorInterface {
 
     public static final int PID_OFFSET = 4;
     public static final int DATA_OFFSET = 6;
-
-    private static final int BUFFER_LENGTH = 128;
 
     private Map<String, Integer> bufferMap;
 
@@ -24,7 +22,11 @@ public class BasePacket<T extends PacketSkeleton> implements PacketConstructorIn
 
     public BasePacket(T packet) {
         this.packet = packet;
-        this.initBuffer(BasePacket.BUFFER_LENGTH);
+    }
+
+    protected void init(int packetLength) {
+        this.dataChanged = true;
+        this.initBuffer(packetLength);
         this.packet.setPacketConstructor(this);
     }
 
@@ -37,7 +39,7 @@ public class BasePacket<T extends PacketSkeleton> implements PacketConstructorIn
         this.setupMapping();
     }
 
-    public void setupPacket(byte[] byteArray) {
+    protected void setupPacket(byte[] byteArray) {
         this.byteBuffer.position(0);
         this.byteBuffer.put(byteArray, 0, byteArray.length);
     }
@@ -50,15 +52,16 @@ public class BasePacket<T extends PacketSkeleton> implements PacketConstructorIn
                 int varLength = DataUtility.sizeof(field.getType());
                 if (field.getType().isAssignableFrom(String.class))
                     varLength = field.getAnnotation(PacketData.class).stringLength();
-                if ((dataPosition + varLength) <= BasePacket.BUFFER_LENGTH) {
+                if ((dataPosition + varLength) <= this.byteBuffer.capacity()) {
                     this.bufferMap.put(field.getName(), dataPosition);
                     dataPosition += varLength;
                 } else {
-                    System.err.println("Packet data overflow! [ " + (dataPosition + varLength) + " of " + BasePacket.BUFFER_LENGTH + " ]");
+                    System.err.println("Packet data overflow! [ " + (dataPosition + varLength) + " of " + this.byteBuffer.capacity() + " ]");
                 }
             }
         }
-        System.out.println("Packet length " + dataPosition);
+        System.out.println("Packet Mapped size[" + dataPosition + "] of " + packet.getClass().getSimpleName());
+//        this.printDataMap();
     }
 
     @Override
@@ -107,10 +110,13 @@ public class BasePacket<T extends PacketSkeleton> implements PacketConstructorIn
         Integer dataPosition = this.bufferMap.get(fieldName);
         if (dataPosition != null) {
             int strLen = value.getBytes().length;
+            int zeroLen = length - strLen;
             if (strLen > length)
                 value.substring(0, length);
             this.byteBuffer.position(dataPosition);
-            this.byteBuffer.put(value.getBytes(), 0, value.length());
+            this.byteBuffer.put(value.getBytes(StandardCharsets.UTF_8), 0, value.length());
+            if (zeroLen > 0)
+                this.byteBuffer.put(new byte[zeroLen]);
             this.dataChanged = true;
         }
     }
@@ -194,6 +200,7 @@ public class BasePacket<T extends PacketSkeleton> implements PacketConstructorIn
     public byte[] getPacketByteArray(CrcUtil crcUtil) {
         if (this.dataChanged) {
             this.dataChanged = false;
+            this.byteBuffer.position(0);
             this.byteBuffer.put(crcUtil.calcCrc32(this.byteBuffer.array(), 4), 0, 4);
         }
         return this.byteBuffer.array();
@@ -229,5 +236,25 @@ public class BasePacket<T extends PacketSkeleton> implements PacketConstructorIn
 //        System.out.println("-------------------");
 //        System.out.println("Time " + TimeUnit.MILLISECONDS.convert((System.nanoTime() - startTime), TimeUnit.NANOSECONDS) + " ms");
 //    }
+
+    public void printDataMap() {
+        System.out.println(entriesSortedByValues(this.bufferMap));
+    }
+
+    static <K,V extends Comparable<? super V>> List<Map.Entry<K, V>> entriesSortedByValues(Map<K,V> map) {
+
+        List<Map.Entry<K,V>> sortedEntries = new ArrayList<Map.Entry<K,V>>(map.entrySet());
+
+        Collections.sort(sortedEntries,
+                new Comparator<Map.Entry<K,V>>() {
+                    @Override
+                    public int compare(Map.Entry<K,V> e1, Map.Entry<K,V> e2) {
+                        return e2.getValue().compareTo(e1.getValue());
+                    }
+                }
+        );
+
+        return sortedEntries;
+    }
 
 }

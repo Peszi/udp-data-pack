@@ -1,4 +1,4 @@
-package com.client.packet;
+package com.client.shared.packet;
 
 public class DataUtility {
 

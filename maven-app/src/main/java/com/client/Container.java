@@ -1,7 +1,7 @@
 package com.client;
 
-import com.client.packet.BasePacket;
-import com.client.packet.PacketSkeleton;
+import com.client.shared.packet.BasePacket;
+import com.client.shared.packet.PacketSkeleton;
 
 import java.util.HashMap;
 import java.util.Map;
